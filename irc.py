@@ -1,4 +1,6 @@
 import socket
+import threading
+import time
 
 
 class PyBot(object):
@@ -9,7 +11,9 @@ class PyBot(object):
         self.socket.send("USER {0} 0 * :{0}\n".format(name))
         self.socket.send("NICK {}\n".format(name))
 
-        self._listen()
+        self.listen_thread = threading.Thread(target=self._listen)
+        self.listen_thread.daemon = True
+        self.listen_thread.start()
 
     def join_channel(self, channel):
         self.socket.send("JOIN :{}\n".format(channel))
@@ -30,3 +34,7 @@ bot = PyBot('localhost', 'bot')
 
 bot.join_channel('#pydx')
 bot.message('#pydx', 'Hello!')
+
+time.sleep(10)
+
+bot.message('#pydx', 'All right, bye!')
