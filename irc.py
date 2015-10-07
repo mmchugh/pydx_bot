@@ -24,10 +24,21 @@ class PyBot(object):
     def pong(self, message):
         self.socket.send("PONG :{}\n".format(message))
 
+    def parse_message(self, message):
+        if message.startswith(':'):
+            source, command_message = message[1:].split(' ', 1)
+            user = source.split('!')[0]
+        else:
+            user, command_message = None, message
+
+        command, args = command_message.split(' ', 1)
+
+        print 'Command {} from {} with args ({})'.format(command, user, args)
+
     def _listen(self):
         while True:
             message = self.socket.recv(1024)
-            print message
+            self.parse_message(message.strip())
 
 
 bot = PyBot('localhost', 'bot')
@@ -35,6 +46,5 @@ bot = PyBot('localhost', 'bot')
 bot.join_channel('#pydx')
 bot.message('#pydx', 'Hello!')
 
-time.sleep(10)
-
-bot.message('#pydx', 'All right, bye!')
+while True:
+    time.sleep(1)
