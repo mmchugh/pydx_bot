@@ -15,14 +15,24 @@ class PyBot(object):
         self.listen_thread.daemon = True
         self.listen_thread.start()
 
+        self.irc_handlers = {
+            'PING': self.pong,
+            'PRIVMSG': self.privmsg,
+        }
+
     def join_channel(self, channel):
         self.socket.send("JOIN :{}\n".format(channel))
 
     def message(self, recipient, message):
         self.socket.send("PRIVMSG {} :{}\n".format(recipient, message))
 
-    def pong(self, message):
-        self.socket.send("PONG :{}\n".format(message))
+    def pong(self, source, message):
+        self.socket.send("PONG :{}\n".format(message[1:]))
+
+    def privmsg(self, source, arg_string):
+        destination, message = arg_string.split(' :')
+        if message.startswith('!'):
+            print 'command {} from {}'.format(message[1:], source)
 
     def parse_message(self, message):
         if message.startswith(':'):
@@ -34,6 +44,9 @@ class PyBot(object):
         command, args = command_message.split(' ', 1)
 
         print 'Command {} from {} with args ({})'.format(command, user, args)
+
+        if command in self.irc_handlers:
+            self.irc_handlers[command](user, args)
 
     def _listen(self):
         while True:
