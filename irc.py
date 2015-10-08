@@ -1,3 +1,4 @@
+import json
 import socket
 import threading
 import time
@@ -53,11 +54,26 @@ class PyBot(object):
             message = self.socket.recv(1024)
             self.parse_message(message.strip())
 
+config = json.load(open('bot.json'))
 
-bot = PyBot('localhost', 'bot')
+host = config.get('host', 'localhost')
+name = config.get('name', 'pybot')
+channel = config.get('channel', '#pydx')
 
-bot.join_channel('#pydx')
-bot.message('#pydx', 'Hello!')
+questions_path = config.get('questions_path', 'questions.txt')
+answers_path = config.get('answers_path', 'answers.txt')
+
+questions = [line.strip() for line in open(questions_path)]
+answers = [line.strip() for line in open(answers_path)]
+
+bot = PyBot(host, name)
+
+bot.join_channel(channel)
+bot.message(channel, 'Hello!')
+bot.message(channel, 'To start a game, type "!start"')
+bot.message(channel, 'I have {} questions with {} answers'.format(
+    len(questions), len(answers)
+))
 
 while True:
     time.sleep(1)
