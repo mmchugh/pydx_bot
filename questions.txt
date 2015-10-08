@@ -1,0 +1,13 @@
+Explicit is better than _____.
+_____ is better than implicit.
+_____ is better than complex.
+Sparse is better than _____.
+_____ counts.
+Special cases aren't _____ enough to break the rules.
+_____ should never pass silently.
+In the face of _____, refuse the temptation to guess.
+_____ may not be obvious at first unless you're Dutch.
+Although never is often better than _____ now.
+If the implementation is hard to explain, it's _____.
+If the implementation is easy to explain, it may be _____.
+_____ are one honking great idea -- let's do more of those!

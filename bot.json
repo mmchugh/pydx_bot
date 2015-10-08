@@ -1,0 +1,8 @@
+{
+    "host": "localhost",
+    "port": 6667,
+    "name": "pybot",
+    "channel": "#pydx",
+    "questions_path": "questions.txt",
+    "answers_path": "answers.txt"
+}
