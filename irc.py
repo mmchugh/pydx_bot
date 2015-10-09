@@ -128,7 +128,7 @@ class PyBot(object):
 
     def tick(self):
         now = int(time.time())
-        if self.game_state['next_action_time'] < now:
+        if self.game_state['next_action_time'] > now:
             return
 
         if self.game_state['next_action'] == 'draw':
@@ -154,7 +154,7 @@ class PyBot(object):
             if not self.game_state['choices']:
                 self.message(self.channel, 'Nothing picked')
                 self.game_state['next_action'] = 'draw'
-                self.game_state['next_action_time'] = now + 10
+                self.game_state['next_action_time'] = now
                 return
 
             self.message(self.channel, 'Options are:')
