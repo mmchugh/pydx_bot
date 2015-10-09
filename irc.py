@@ -1,4 +1,5 @@
 import json
+import random
 import socket
 import threading
 import time
@@ -87,6 +88,9 @@ class PyBot(object):
             'answers': [line.strip() for line in open(self.answers_path)],
         }
 
+        random.shuffle(self.game_state['questions'])
+        random.shuffle(self.game_state['answers'])
+
         self.message(self.channel, "Game started! First draw in 30 seconds.")
         self.player_join(source, '')
 
@@ -111,6 +115,11 @@ class PyBot(object):
 
         self.message(self.channel, '{} has joined the game!'.format(source))
 
+        self.message(source, 'Your cards are:')
+
+        for index, card in enumerate(player['hand']):
+            self.message(source, '{}: {}'.format(index, card))
+
     def player_answer(self, source, args):
         pass
 
@@ -118,10 +127,51 @@ class PyBot(object):
         pass
 
     def tick(self):
-        pass
+        now = int(time.time())
+        if self.game_state['next_action_time'] < now:
+            return
+
+        if self.game_state['next_action'] == 'draw':
+            player = random.choice(
+                [player['name'] for player in self.game_state['players']]
+            )
+            question = self.game_state['questions'].pop()
+
+            self.game_state['active_chooser'] = player
+            self.game_state['active_question'] = question
+            self.game_state['choices'] = []
+
+            self.message(self.channel, 'Next round, {} chooses'.format(player))
+            self.message(self.channel, question)
+            self.message(self.channel, '15 seconds to choose!')
+
+            self.game_state['next_action_time'] = now + 15
+            self.game_state['next_action'] = 'choose'
+        elif self.game_state['next_action'] == 'choose':
+            random.shuffle(self.game_state['choices'])
+            question = self.game_state['active_question']
+
+            if not self.game_state['choices']:
+                self.message(self.channel, 'Nothing picked')
+                self.game_state['next_action'] = 'draw'
+                self.game_state['next_action_time'] = now + 10
+                return
+
+            self.message(self.channel, 'Options are:')
+
+            for index, choice in enumerate(self.game_state['choices']):
+                message = '{}: {}'.format(index, question.replace(
+                    '_____', choice['answer']
+                ))
+                self.message(self.channel, message)
+
+            self.game_state['next_action_time'] = now + 15
+            self.game_state['next_action'] = 'decide'
+        elif self.game_state['next_action'] == 'decide':
+            pass
 
     def _get_card(self):
-        pass
+        return self.game_state['answers'].pop()
 
     def _listen(self):
         while True:
