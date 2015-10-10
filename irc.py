@@ -83,7 +83,7 @@ class PyBot(object):
         self.game_state = {
             'next_action': 'draw',
             'next_action_time': int(time.time()) + 30,
-            'players': [],
+            'players': {},
             'questions': [line.strip() for line in open(self.questions_path)],
             'answers': [line.strip() for line in open(self.answers_path)],
         }
@@ -101,17 +101,16 @@ class PyBot(object):
             self.start_game(source, None)
             return
 
-        if source in [player['name'] for player in self.game_state['players']]:
+        if source in self.game_state['players']:
             self.message(self.channel, '{} is already playing'.format(source))
             return
 
         player = {
-            'name': source,
             'score': 0,
             'hand': [self._get_card() for _ in range(5)],
         }
 
-        self.game_state['players'].append(player)
+        self.game_state['players'][source] = player
 
         self.message(self.channel, '{} has joined the game!'.format(source))
 
@@ -132,9 +131,7 @@ class PyBot(object):
             return
 
         if self.game_state['next_action'] == 'draw':
-            player = random.choice(
-                [player['name'] for player in self.game_state['players']]
-            )
+            player = random.choice(self.game_state['players'].keys())
             question = self.game_state['questions'].pop()
 
             self.game_state['active_chooser'] = player
